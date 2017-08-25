@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{title}}</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+		{{#if user}}
+		<div>You're currently logged in as: <a href=/users/{{user.username}}>{{user.username}}</a></div> (<a href="/logout">logout</a>)
+		{{else}}
+		<a href="/login">login</a> or 
+		<a href="/register">register</a>
+		{{/if}}
+		<div>
+			{{{body}}}
+		</div>
+  </body>
+</html>
