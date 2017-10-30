@@ -15,24 +15,13 @@ router.get('/', function(req, res) {
       symbols:watchlist
     }, function(err, news) {
       if (!err) {
-        var newsarray = [];
-        for (stock in news) {
-          var data = news[stock];
-          data.forEach(function(ele) {
-            ele.sentiment = sentiment(ele.summary);
-            newsarray.push(ele);
-          });
-        }
+        var newsarray = getMultipleStockNews(news);
         var tickerlist = [];
         watchlist.forEach(function(stock) {
           tickerlist.push(stock.split(':')[1]);
         });
 
-        newsarray.sort(function(a,b) {
-          var dateA = new Date(a.date);
-          var dateB = new Date(b.date);
-          return dateB-dateA;
-        });
+        newsarray.sort(byDate);
         res.render('index', {newsarray:newsarray, watchlist:tickerlist});
       } else {
 
@@ -132,14 +121,19 @@ router.get('/users/:username', function(req, res) {
 });
 
 router.get('/api/get-news', function(req,res) { 
+  var watchlist;
+  if (req.user) {
+
+  } else {
+    watchlist = ['NASDAQ:AMZN', 'NASDAQ:BABA', 'NASDAQ:FB', 'NASDAQ:TSLA'];
+    watchlist.push(req.query.ticker);
+  }
   googleFinance.companyNews({
-    symbol: req.query.ticker
+    symbols: watchlist
   }, function(err, news) {
     if (!err) {
-      var newsarray = [];
-      for (article in news) {
-        newsarray.push(news[article]);
-      }
+      var newsarray = getMultipleStockNews(news);
+      newsarray.sort(byDate);
       res.json(newsarray.map(function(ele) {
         return {
           "symbol":ele.symbol,
@@ -156,5 +150,32 @@ router.get('/api/get-news', function(req,res) {
     }
   });
 });
+
+
+function getSingleStockNews(news) {
+  var newsarray = [];
+  for (article in news) {
+    newsarray.push(news[article]);
+  }
+  return newsarray;
+}
+
+function getMultipleStockNews(news) {
+  var newsarray = [];
+  for (stock in news) {
+    var data = news[stock];
+    data.forEach(function(ele) {
+      ele.sentiment = sentiment(ele.summary);
+      newsarray.push(ele);
+    });
+  }
+  return newsarray;
+}
+
+function byDate(a,b) {
+  var dateA = new Date(a.date);
+  var dateB = new Date(b.date);
+  return dateB-dateA;
+}
 
 module.exports = router;

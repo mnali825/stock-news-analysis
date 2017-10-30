@@ -10,13 +10,16 @@
       </div>
     </div>
     <h3 class="center">Watchlist</h3>
-    <div id="watchlist">
+    <ul id="watchlist">
       {{#each watchlist}}
-      <div class="card-panel">
-        <h5>{{this}}</h5>
-      </div>
+      <li class="card-panel">
+        <h5 style="display:inline;"><a href="#{{this}}" class="stock-filter-btn">{{this}}</a></h5>
+        <a href="" class="white-text remove-stock">
+          <div style="display:inline; float:right; width:25px; height:25px; padding:3px;" class="grey circle center">X</div>
+        </a>
+      </li>
       {{/each}}
-    </div>
+    </ul>
   </div>
   <div class="col s12 m9 l9" style="height:100vh;">
     <div id="general-data" class="card-panel">
@@ -24,7 +27,7 @@
     </div>
     <div id="news" class="card-panel">
       {{#each newsarray}}
-      <div class="card-panel" style="padding:0; padding-left:15px;">
+      <div class="card-panel {{symbol}}" style="padding:0; padding-left:15px;">
         <div class="row">
           <div class="col l10" style="padding-top:25px;">
             <h5><a href="{{link}}" target="_blank">{{title}}</a></h5>
@@ -48,17 +51,18 @@
   document.addEventListener('DOMContentLoaded', init);
 
   function init(event) {
+    updateColor();
+    $('#watchlist').sortable();
     document.getElementById('stock-ticker-form').addEventListener('submit', handleStockLookup);
-    var scorecards = document.getElementsByClassName('sentiment');
-    Array.prototype.forEach.call(scorecards, function(ele) {
-      if (Number(ele.textContent) < 0) {
-        ele.parentNode.classList.add('red');
-      } else if (Number(ele.textContent) > 4) {
-        ele.parentNode.classList.add('green');
-      } else {
-          ele.parentNode.classList.add('yellow');
-      }
-    })
+    var removeBtns = document.getElementsByClassName('remove-stock');
+    Array.prototype.forEach.call(removeBtns, function(btn) {
+      btn.addEventListener('click', handleRemoveStock);
+    });
+  }
+
+  function handleRemoveStock(event) {
+    event.preventDefault();
+    this.parentNode.remove();
   }
 
   function handleStockLookup(event) {
@@ -69,29 +73,51 @@
     req.addEventListener('load', function() {
       if (req.status >= 200 || req.status<400) {
         var articles = JSON.parse(req.responseText);
-        var symbol;
+        var symbol = (document.getElementById('stock-ticker').value).toUpperCase();
+
+        var newsdiv = document.getElementById('news');
+        while (newsdiv.firstChild) {
+          newsdiv.removeChild(newsdiv.firstChild);
+        }
         
+        // Append news articles to news list
         articles.forEach(function(article) {
-          var articleDiv = document.createElement('div');
-          articleDiv.classList.add('card-panel');
-          articleDiv.append(document.createElement('p').textContent = article.title);
-          document.getElementById('news').append(articleDiv);
-          symbol = article.symbol;
+          $('#news').append(
+            '<div class="card-panel" style="padding:0; padding-left:15px;"><div class="row"><div class="col l10" style="padding-top:25px;"> <h5><a href="{{link}}" target="_blank">'+article.title+'</a></h5> <p class="truncate">'+article.description+'</p></div><div class="col l2 center" style="padding-top:10px;"><div class="card-panel" style="padding:0; padding-top:5px; padding-bottom:5px;"><p>Sentiment</p><h5 class="sentiment">'+article.sentiment.score+'</h5></div></div></div></div>'
+            )
+          // var articleDiv = document.createElement('div');
+          // articleDiv.classList.add('card-panel');
+          // articleDiv.append(document.createElement('p').textContent = article.title);
+          // document.getElementById('news').append(articleDiv);
         });
 
+        //Add new symbol to watchlist
         var tickerDiv = document.createElement('div');
         tickerDiv.classList.add('card-panel');
-        var tickerSymbol = symbol.split(':')[1];
         var h5 = document.createElement('h5');
-        h5.textContent = tickerSymbol;
+        h5.textContent = symbol;
         tickerDiv.append(h5);
         var watchlistDiv = document.getElementById('watchlist');
         watchlistDiv.insertBefore(tickerDiv, watchlistDiv.childNodes[0]);
+        updateColor();
 
       } else {
 
       }
     });
     req.send();
+  }
+
+  function updateColor() {
+    var scorecards = document.getElementsByClassName('sentiment');
+    Array.prototype.forEach.call(scorecards, function(ele) {
+      if (Number(ele.textContent) < 0) {
+        ele.parentNode.classList.add('red');
+      } else if (Number(ele.textContent) > 4) {
+        ele.parentNode.classList.add('green');
+      } else {
+          ele.parentNode.classList.add('yellow');
+      }
+    });
   }
 </script>
