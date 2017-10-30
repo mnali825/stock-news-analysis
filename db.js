@@ -21,4 +21,4 @@ mongoose.model('User', User)
 // mongoose.model('Image', Image)
 
 
-mongoose.connect('mongodb://localhost/userdb');
+mongoose.connect('mongodb://localhost/stock-news');

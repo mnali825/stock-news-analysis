@@ -2,17 +2,21 @@
 <html>
   <head>
     <title>{{title}}</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="stylesheets/materialize.min.css"  media="screen,projection"/>
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-		{{#if user}}
+		<!-- {{#if user}}
 		<div>You're currently logged in as: <a href=/users/{{user.username}}>{{user.username}}</a></div> (<a href="/logout">logout</a>)
 		{{else}}
 		<a href="/login">login</a> or 
 		<a href="/register">register</a>
 		{{/if}}
-		<div>
+		<div> -->
 			{{{body}}}
+      <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <script type="text/javascript" src="js/materialize.min.js"></script>
 		</div>
   </body>
 </html>

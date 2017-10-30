@@ -1,0 +1,97 @@
+<div class="row">
+  <div id="side-nav" class="col l3 hide-on-small-only blue-grey darken-3" style="height:100vh;">
+    <div id="searchbar" class="row white">
+      <div class="input-field col s12">
+        <form id="stock-ticker-form">
+          <i class="material-icons prefix">search</i>
+          <input id="stock-ticker" type="text" class="">
+          <label for="password">Search</label>
+        </form>
+      </div>
+    </div>
+    <h3 class="center">Watchlist</h3>
+    <div id="watchlist">
+      {{#each watchlist}}
+      <div class="card-panel">
+        <h5>{{this}}</h5>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  <div class="col s12 m9 l9" style="height:100vh;">
+    <div id="general-data" class="card-panel">
+      <!-- Here is where we showcase general, relevant data analysis -->
+    </div>
+    <div id="news" class="card-panel">
+      {{#each newsarray}}
+      <div class="card-panel" style="padding:0; padding-left:15px;">
+        <div class="row">
+          <div class="col l10" style="padding-top:25px;">
+            <h5><a href="{{link}}" target="_blank">{{title}}</a></h5>
+            <p class="truncate">{{description}}</p>
+          </div>
+          <div class="col l2 center" style="padding-top:10px;">
+          <div class="card-panel" style="padding:0; padding-top:5px; padding-bottom:5px;">
+            <p>Sentiment</p>
+            <h5 class="sentiment">{{sentiment.score}}</h5>
+          </div>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var servername = 'http://localhost:3000';
+  document.addEventListener('DOMContentLoaded', init);
+
+  function init(event) {
+    document.getElementById('stock-ticker-form').addEventListener('submit', handleStockLookup);
+    var scorecards = document.getElementsByClassName('sentiment');
+    Array.prototype.forEach.call(scorecards, function(ele) {
+      if (Number(ele.textContent) < 0) {
+        ele.parentNode.classList.add('red');
+      } else if (Number(ele.textContent) > 4) {
+        ele.parentNode.classList.add('green');
+      } else {
+          ele.parentNode.classList.add('yellow');
+      }
+    })
+  }
+
+  function handleStockLookup(event) {
+    event.preventDefault();
+    var ticker = "NASDAQ:"+(document.getElementById('stock-ticker').value).toUpperCase();
+    var req = new XMLHttpRequest();
+    req.open('GET', servername+'/api/get-news?ticker='+ticker, true);
+    req.addEventListener('load', function() {
+      if (req.status >= 200 || req.status<400) {
+        var articles = JSON.parse(req.responseText);
+        var symbol;
+        
+        articles.forEach(function(article) {
+          var articleDiv = document.createElement('div');
+          articleDiv.classList.add('card-panel');
+          articleDiv.append(document.createElement('p').textContent = article.title);
+          document.getElementById('news').append(articleDiv);
+          symbol = article.symbol;
+        });
+
+        var tickerDiv = document.createElement('div');
+        tickerDiv.classList.add('card-panel');
+        var tickerSymbol = symbol.split(':')[1];
+        var h5 = document.createElement('h5');
+        h5.textContent = tickerSymbol;
+        tickerDiv.append(h5);
+        var watchlistDiv = document.getElementById('watchlist');
+        watchlistDiv.insertBefore(tickerDiv, watchlistDiv.childNodes[0]);
+
+      } else {
+
+      }
+    });
+    req.send();
+  }
+</script>

@@ -3,9 +3,55 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var passport = require('passport');
 var User = mongoose.model('User');
+var googleFinance = require('google-finance');
+var sentiment = require('sentiment');
 
 router.get('/', function(req, res) {
-  res.render('index', { user: req.user });
+  if (req.user) {
+    res.render('index', { user: req.user });  
+  } else {
+    var watchlist = ['NASDAQ:AMZN', 'NASDAQ:BABA', 'NASDAQ:FB', 'NASDAQ:TSLA'];
+    googleFinance.companyNews({
+      symbols:watchlist
+    }, function(err, news) {
+      if (!err) {
+        var newsarray = [];
+        for (stock in news) {
+          var data = news[stock];
+          data.forEach(function(ele) {
+            ele.sentiment = sentiment(ele.summary);
+            newsarray.push(ele);
+          });
+        }
+        var tickerlist = [];
+        watchlist.forEach(function(stock) {
+          tickerlist.push(stock.split(':')[1]);
+        });
+
+        newsarray.sort(function(a,b) {
+          var dateA = new Date(a.date);
+          var dateB = new Date(b.date);
+          return dateB-dateA;
+        });
+        res.render('index', {newsarray:newsarray, watchlist:tickerlist});
+      } else {
+
+      }
+      
+
+      // res.json(newsarray.map(function(ele) {
+      //   return {
+      //     "symbol":ele.symbol,
+      //     "title":ele.title,
+      //     "description":ele.description,
+      //     "summary":ele.summary,
+      //     "date":ele.date,
+      //     "link":ele.link
+      //   }
+      // }));
+    });
+  }
+  
 });
 
 router.get('/login', function(req, res) {
@@ -85,21 +131,29 @@ router.get('/users/:username', function(req, res) {
   });
 });
 
-router.post('/image/create', function(req, res) {
-  // NOTE: we're grabbing the _id from request.user
-  // and saving it into the image object
-  var img = new Image({
-    url: req.body.url,
-    user: req.user._id
-  });
+router.get('/api/get-news', function(req,res) { 
+  googleFinance.companyNews({
+    symbol: req.query.ticker
+  }, function(err, news) {
+    if (!err) {
+      var newsarray = [];
+      for (article in news) {
+        newsarray.push(news[article]);
+      }
+      res.json(newsarray.map(function(ele) {
+        return {
+          "symbol":ele.symbol,
+          "title":ele.title,
+          "description":ele.description,
+          "summary":ele.summary,
+          "date":ele.date,
+          "link":ele.link,
+          "sentiment":sentiment(ele.summary)
+        }
+      }));
+    } else {
 
-  img.save(function(err, savedImage, count) {
-    // NOTE: we're grabbing the image id from the
-    // saved image to add to the user's image array
-    req.user.images.push(savedImage._id);
-    req.user.save(function(err, savedUser, count) {
-      res.redirect('/users/' + req.user.username);
-    });
+    }
   });
 });
 

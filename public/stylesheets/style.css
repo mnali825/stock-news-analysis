@@ -1,8 +1,42 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  overflow: hidden;
 }
 
 a {
   color: #00B7FF;
+}
+
+input {
+  border-bottom: none!important;
+}
+
+#side-nav {
+  overflow: hidden;
+}
+
+#news {
+  overflow:scroll;
+  height:60vh;
+}
+
+#searchbar {
+  margin-top:25px;
+  margin-left:5px;
+  margin-right:5px;
+  border-radius: 25px;
+  height:60px;
+  padding-top:0!important;
+}
+
+#stock-ticker {
+  margin-top:-5px;
+}
+
+#general-data {
+  height:20vh;
+}
+
+#watchlist {
+  height:70vh;
+  overflow: scroll;
 }
