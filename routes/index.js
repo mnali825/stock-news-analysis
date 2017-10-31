@@ -7,39 +7,35 @@ var googleFinance = require('google-finance');
 var sentiment = require('sentiment');
 
 router.get('/', function(req, res) {
+  var watchlist;
   if (req.user) {
     res.render('index', { user: req.user });  
   } else {
-    var watchlist = ['NASDAQ:AMZN', 'NASDAQ:BABA', 'NASDAQ:FB', 'NASDAQ:TSLA'];
-    googleFinance.companyNews({
-      symbols:watchlist
-    }, function(err, news) {
-      if (!err) {
-        var newsarray = getMultipleStockNews(news);
-        var tickerlist = [];
-        watchlist.forEach(function(stock) {
-          tickerlist.push(stock.split(':')[1]);
-        });
-
-        newsarray.sort(byDate);
-        res.render('index', {newsarray:newsarray, watchlist:tickerlist});
-      } else {
-
-      }
-      
-
-      // res.json(newsarray.map(function(ele) {
-      //   return {
-      //     "symbol":ele.symbol,
-      //     "title":ele.title,
-      //     "description":ele.description,
-      //     "summary":ele.summary,
-      //     "date":ele.date,
-      //     "link":ele.link
-      //   }
-      // }));
-    });
+    watchlist = ['NASDAQ:AMZN', 'NASDAQ:BABA', 'NASDAQ:FB', 'NASDAQ:TSLA'];
   }
+
+  googleFinance.companyNews({
+    symbols:watchlist
+  }, function(err, news) {
+    if (!err) {
+      var newsarray = getMultipleStockNews(news);
+
+      var tickerlist = [];
+      watchlist.forEach(function(stock) {
+        tickerlist.push(stock.split(':')[1]);
+      });
+
+      var newsCompanies = [];
+      newsarray.forEach(function(article) {
+        newsCompanies.push(article.link.split("//")[1].split('.com')[0]);
+      });
+      console.log(newsCompanies);
+      newsarray.sort(byDate);
+      res.render('index', {newsarray:newsarray, watchlist:tickerlist});
+    } else {
+
+    }
+  });
   
 });
 

@@ -12,7 +12,7 @@
     <h3 class="center">Watchlist</h3>
     <ul id="watchlist">
       {{#each watchlist}}
-      <li class="card-panel">
+      <li class="card-panel" id="{{this}}">
         <h5 style="display:inline;"><a href="#{{this}}" class="stock-filter-btn">{{this}}</a></h5>
         <a href="" class="white-text remove-stock">
           <div style="display:inline; float:right; width:25px; height:25px; padding:3px;" class="grey circle center">X</div>
@@ -22,7 +22,7 @@
     </ul>
   </div>
   <div class="col s12 m9 l9" style="height:100vh;">
-    <div id="general-data" class="card-panel">
+    <div id="general-data" class="card-panel" style="margin-top:10px;">
       <!-- Here is where we showcase general, relevant data analysis -->
     </div>
     <div id="news" class="card-panel">
@@ -58,11 +58,39 @@
     Array.prototype.forEach.call(removeBtns, function(btn) {
       btn.addEventListener('click', handleRemoveStock);
     });
+
+    var stockCards = document.getElementsByClassName('stock-filter-btn');
+    Array.prototype.forEach.call(stockCards, function(card) {
+      card.addEventListener('click', handleStockFilter);
+    })
+  }
+
+  function handleStockFilter(event) {
+    var stock = this.textContent;
+    var newsCards = document.getElementById('news').childNodes;
+    for (card in newsCards) {
+      if (newsCards[card].classList !== undefined) {
+        if (!newsCards[card].classList.contains("NASDAQ:"+stock)) {
+          newsCards[card].classList.add('hide');
+        } else {
+          newsCards[card].classList.remove('hide');
+        }
+      }
+    }
   }
 
   function handleRemoveStock(event) {
     event.preventDefault();
+    var stock = this.parentNode.id;
     this.parentNode.remove();
+    var newsCards = document.getElementById('news').childNodes;
+    for (card in newsCards) {
+      if (newsCards[card].classList !== undefined) {
+        if (newsCards[card].classList.contains("NASDAQ:"+stock)) {
+          newsCards[card].remove();
+        }  
+      }
+    }
   }
 
   function handleStockLookup(event) {
@@ -92,13 +120,14 @@
         });
 
         //Add new symbol to watchlist
-        var tickerDiv = document.createElement('div');
-        tickerDiv.classList.add('card-panel');
-        var h5 = document.createElement('h5');
-        h5.textContent = symbol;
-        tickerDiv.append(h5);
-        var watchlistDiv = document.getElementById('watchlist');
-        watchlistDiv.insertBefore(tickerDiv, watchlistDiv.childNodes[0]);
+        $('#watchlist:first-child').prepend("<h1>HELLLO</h1>");
+        alert($('#watchlist:first-child'));
+        // var tickerDiv = document.createElement('div');
+        // tickerDiv.classList.add('card-panel');
+        // var h5 = document.createElement('h5');
+        // h5.textContent = symbol;
+        // tickerDiv.append(h5);
+
         updateColor();
 
       } else {
