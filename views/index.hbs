@@ -62,7 +62,7 @@
     var stockCards = document.getElementsByClassName('stock-filter-btn');
     Array.prototype.forEach.call(stockCards, function(card) {
       card.addEventListener('click', handleStockFilter);
-    })
+    });
   }
 
   function handleStockFilter(event) {
@@ -111,7 +111,7 @@
         // Append news articles to news list
         articles.forEach(function(article) {
           $('#news').append(
-            '<div class="card-panel" style="padding:0; padding-left:15px;"><div class="row"><div class="col l10" style="padding-top:25px;"> <h5><a href="{{link}}" target="_blank">'+article.title+'</a></h5> <p class="truncate">'+article.description+'</p></div><div class="col l2 center" style="padding-top:10px;"><div class="card-panel" style="padding:0; padding-top:5px; padding-bottom:5px;"><p>Sentiment</p><h5 class="sentiment">'+article.sentiment.score+'</h5></div></div></div></div>'
+            '<div class="card-panel '+article.symbol+'" style="padding:0; padding-left:15px;"><div class="row"><div class="col l10" style="padding-top:25px;"> <h5><a href="{{link}}" target="_blank">'+article.title+'</a></h5> <p class="truncate">'+article.description+'</p></div><div class="col l2 center" style="padding-top:10px;"><div class="card-panel" style="padding:0; padding-top:5px; padding-bottom:5px;"><p>Sentiment</p><h5 class="sentiment">'+article.sentiment.score+'</h5></div></div></div></div>'
             )
           // var articleDiv = document.createElement('div');
           // articleDiv.classList.add('card-panel');
@@ -120,13 +120,22 @@
         });
 
         //Add new symbol to watchlist
-        $('#watchlist:first-child').prepend("<h1>HELLLO</h1>");
-        alert($('#watchlist:first-child'));
+        $('#watchlist').prepend('<li class="card-panel" id="'+symbol+'"><h5 style="display:inline;"><a href="#'+symbol+'" class="stock-filter-btn">'+symbol+'</a></h5><a href="" class="white-text remove-stock"><div style="display:inline; float:right; width:25px; height:25px; padding:3px;" class="grey circle center">X</div></a></li>');
         // var tickerDiv = document.createElement('div');
         // tickerDiv.classList.add('card-panel');
         // var h5 = document.createElement('h5');
         // h5.textContent = symbol;
         // tickerDiv.append(h5);
+
+        var removeBtns = document.getElementsByClassName('remove-stock');
+        Array.prototype.forEach.call(removeBtns, function(btn) {
+          btn.addEventListener('click', handleRemoveStock);
+        });
+
+        var stockCards = document.getElementsByClassName('stock-filter-btn');
+        Array.prototype.forEach.call(stockCards, function(card) {
+          card.addEventListener('click', handleStockFilter);
+        });
 
         updateColor();
 
