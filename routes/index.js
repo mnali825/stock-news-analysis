@@ -27,11 +27,11 @@ router.get('/', function(req, res) {
 
       var newsCompanies = [];
       newsarray.forEach(function(article) {
-        newsCompanies.push(article.link.split("//")[1].split('.com')[0]);
+        newsCompanies.push(article.link.split("//")[1].split('.com')[0].replace('www.',''));
       });
       console.log(newsCompanies);
       newsarray.sort(byDate);
-      res.render('index', {newsarray:newsarray, watchlist:tickerlist});
+      res.render('index', {newsarray:newsarray, watchlist:tickerlist, sources:uniq(newsCompanies)});
     } else {
 
     }
@@ -138,7 +138,8 @@ router.get('/api/get-news', function(req,res) {
           "summary":ele.summary,
           "date":ele.date,
           "link":ele.link,
-          "sentiment":sentiment(ele.summary)
+          "sentiment":sentiment(ele.summary),
+          "source":ele.link.split("//")[1].split('.com')[0].replace('www.','')
         }
       }));
     } else {
@@ -162,6 +163,7 @@ function getMultipleStockNews(news) {
     var data = news[stock];
     data.forEach(function(ele) {
       ele.sentiment = sentiment(ele.summary);
+      ele.source = ele.link.split("//")[1].split('.com')[0].replace('www.','')
       newsarray.push(ele);
     });
   }
@@ -172,6 +174,13 @@ function byDate(a,b) {
   var dateA = new Date(a.date);
   var dateB = new Date(b.date);
   return dateB-dateA;
+}
+
+function uniq(a) {
+  var seen = {};
+  return a.filter(function(item) {
+    return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+  });
 }
 
 module.exports = router;

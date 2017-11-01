@@ -22,12 +22,15 @@
     </ul>
   </div>
   <div class="col s12 m9 l9" style="height:100vh;">
-    <div id="general-data" class="card-panel" style="margin-top:10px;">
-      <!-- Here is where we showcase general, relevant data analysis -->
+    <div id="news-source" class="card-panel" style="margin-top:10px;">
+    {{#each sources}}
+    <a href="#{{this}}"><div class="card-panel" style="display:inline-block; padding:15px;">{{this}}</div></a>
+    {{/each}}
+    <a id="reset-news"><div class="card-panel" style="display:inline-block; padding:15px;">Reset</div></a>
     </div>
     <div id="news" class="card-panel">
       {{#each newsarray}}
-      <div class="card-panel {{symbol}}" style="padding:0; padding-left:15px;">
+      <div class="card-panel {{symbol}} {{source}}" style="padding:0; padding-left:15px;">
         <div class="row">
           <div class="col l10" style="padding-top:25px;">
             <h5><a href="{{link}}" target="_blank">{{title}}</a></h5>
