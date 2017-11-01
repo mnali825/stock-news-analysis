@@ -24,7 +24,7 @@
   <div class="col s12 m9 l9" style="height:100vh;">
     <div id="news-source" class="card-panel" style="margin-top:10px;">
     {{#each sources}}
-    <a href="#{{this}}"><div class="card-panel" style="display:inline-block; padding:15px;">{{this}}</div></a>
+    <a href="#{{this}}" class="filter-source"><div class="card-panel" style="display:inline-block; padding:15px;">{{this}}</div></a>
     {{/each}}
     <a id="reset-news"><div class="card-panel" style="display:inline-block; padding:15px;">Reset</div></a>
     </div>
@@ -66,6 +66,23 @@
     Array.prototype.forEach.call(stockCards, function(card) {
       card.addEventListener('click', handleStockFilter);
     });
+
+    var sourceCards = document.getElementsByClassName('filter-source');
+    Array.prototype.forEach.call(sourceCards, function(card) {
+      card.addEventListener('click', handleStockFilter);
+    })
+
+    document.getElementById('reset-news').addEventListener('click', handleResetSourceFilter);
+  }
+
+  function handleResetSourceFilter(event) {
+    var source = this.textContent;
+    var newsCards = document.getElementById('news').childNodes;
+    for (card in newsCards) {
+      if (newsCards[card].classList !== undefined) {
+        newsCards[card].classList.remove('hide');
+      }
+    }
   }
 
   function handleStockFilter(event) {
@@ -73,7 +90,7 @@
     var newsCards = document.getElementById('news').childNodes;
     for (card in newsCards) {
       if (newsCards[card].classList !== undefined) {
-        if (!newsCards[card].classList.contains("NASDAQ:"+stock)) {
+        if (!newsCards[card].classList.contains("NASDAQ:"+stock) && !newsCards[card].classList.contains(stock)) {
           newsCards[card].classList.add('hide');
         } else {
           newsCards[card].classList.remove('hide');
